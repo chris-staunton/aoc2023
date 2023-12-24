@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main {
+public class DayOne {
     public static void main(String[] args) {
         System.out.println("Hello world!");
 
@@ -12,12 +12,48 @@ public class Main {
         int result = 0;
         for (String tmp: lines){
             System.out.println(tmp);
-            result += getCallibrationVal(tmp);
+            result += getCallibrationValWithLetters(tmp);
             System.out.println(getCallibrationValWithLetters(tmp));
 
         }
 
         System.out.println(result);
+
+    }
+
+    public static int isDigit(int startIdx, String line) {
+
+        for (int i=2; i<=5; i++){
+            if (startIdx+i>line.length()-1){
+                return -1;
+            }
+            String maybeNumber = line.substring(startIdx,startIdx+i);
+            if (isNumber(maybeNumber) != -1) {
+                // return digit
+                return isNumber(maybeNumber);
+            }
+        }
+
+        return -1;
+
+
+    }
+
+    public static int isReverseDigit(int endIdx, String line) {
+
+        for (int i=endIdx-2; i>=endIdx-4; i--){
+            if (i<0){
+                return -1;
+            }
+            String maybeNumber = line.substring(i,endIdx+1);
+            if (isNumber(maybeNumber) != -1) {
+                // return digit
+                return isNumber(maybeNumber);
+            }
+        }
+
+        return -1;
+
 
     }
     public static int isNumber(String str) {
@@ -58,34 +94,45 @@ public class Main {
         int result = 0;
         char left_val='x';
         char right_val='x';
+        boolean leftFound = false;
+        boolean rightFound = false;
 
         while (start_idx<=end_idx) {
+            if (leftFound && rightFound){
+                break;
+            }
             char starting_char = array[start_idx];
             char ending_char = array[end_idx];
-            if (Character.isDigit(array[start_idx]) && Character.isDigit(array[end_idx])){
+            if ((Character.isDigit(array[start_idx]) && Character.isDigit(array[end_idx]))){
                 // win
                 String x = Character.toString(array[start_idx]) + Character.toString(array[end_idx]);
                 return Integer.parseInt(x);
             }
-            else if(Character.isDigit(array[start_idx])){
+            else if(Character.isDigit(array[start_idx]) && !leftFound){
                 //found first
                 // move end
                 left_val=array[start_idx];
-                end_idx--;
+                leftFound=true;
+//                end_idx--;
             }
-            else if (!Character.isDigit(starting_char)) {
-                int digit = -1;
-
-                for (int i=2; i<5; i++){
-                    String maybeNumber = line.substring(start_idx,start_idx+i);
-                    if (isNumber(maybeNumber) != -1) {
-                        // return digit
-                    }
-                }
-
-                if (digit == -1) {
+            else if (!Character.isDigit(starting_char) && !leftFound) {
+//                int digit = -1;
+//
+//                for (int i=2; i<5; i++){
+//                    String maybeNumber = line.substring(start_idx,start_idx+i);
+//                    if (isNumber(maybeNumber) != -1) {
+//                        // return digit
+//                    }
+//                }
+                int tmp = isDigit(start_idx, line);
+                if (tmp == -1) {
                     // continue
                     start_idx++;
+                }
+                else{
+                    // found left number
+                    left_val= (char)(tmp+'0');
+                    leftFound=true;
                 }
 
 //                String maybeNumber = array[start_idx]
@@ -94,12 +141,26 @@ public class Main {
 
             }
 
-            else if (Character.isDigit(array[end_idx])) {
+            else if (Character.isDigit(array[end_idx]) && !rightFound) {
                 // found last
                 // move right
                 right_val=array[end_idx];
-                start_idx++;
-            } else if (!Character.isDigit(ending_char)) {
+                rightFound = true;
+//                start_idx++;
+            } else if (!Character.isDigit(ending_char) && !rightFound) {
+
+                int helper = isReverseDigit(end_idx, line);
+
+                if(helper == -1){
+                    end_idx--;
+                }
+                else{
+                    right_val = (char)(helper+'0');
+                    rightFound=true;
+                    start_idx++;
+                }
+
+
                 // try parse digit
                 // resverse it
             } else {
@@ -117,8 +178,14 @@ public class Main {
             String squish = Character.toString(right_val);
             return Integer.parseInt(squish+squish);
         }
+        else {
+            String leftString = Character.toString(left_val);
+            String rightString = Character.toString(right_val);
+
+            return Integer.parseInt(leftString+rightString);
+        }
 //        return right_val*2 + left_val*2;
-        return 0;
+//        return 0;
         }
 
 //        return 0;
